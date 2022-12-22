@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import useSWR from 'swr'
 
 import Layout from '@components/Layout';
 import Section from '@components/Section';
@@ -10,7 +11,32 @@ import styles from '@styles/Home.module.scss';
 
 const DEFAULT_CENTER = [38.907132, -77.036546]
 
+const fetcher = (...args) => fetch(...args).then(res => res.json())
+
 export default function Home() {
+  const { data, error, isLoading } = useSWR('https://firebasestorage.googleapis.com/v0/b/santa-tracker-firebase.appspot.com/o/route%2Fsanta_en.json?alt=media&2018b', fetcher)
+
+
+  const currentDate = new Date (Date.now())
+  // const currentDate = new Date ('2022-12-25T02:34:30.115Z');
+  const currentYear = currentDate.getFullYear()
+
+  const destinations = data?.destinations.map(destination => {
+    const { arrival, departure} = destination;
+
+    const arrivalDate = new Date(arrival);
+    const departureDate = new Date(departure);
+
+    arrivalDate.setFullYear (currentYear);
+    departureDate.setFullYear (currentYear);
+    return {
+      ...destination,
+      arrival: arrivalDate.getTime(),
+      departure: departureDate.getTime()
+    }
+  })
+
+
   return (
     <Layout>
       <Head>
@@ -25,18 +51,73 @@ export default function Home() {
             Next.js Leaflet Starter
           </h1>
 
-          <Map className={styles.homeMap} width="800" height="400" center={DEFAULT_CENTER} zoom={12}>
-            {({ TileLayer, Marker, Popup }) => (
+          <Map className={styles.homeMap} width="800" height="400" center={[0,0]} zoom={1}>
+            {({ TileLayer, Marker, Popup }, Leaflet) => (
               <>
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
                 />
-                <Marker position={DEFAULT_CENTER}>
+                {destinations?.map(({ id, arrival, departure, location, city, region }) => {
+                  const arrivalDate = new Date(arrival);
+                  const arrivalHours = arrivalDate.getHours();
+                  const arrivalMinutes = arrivalDate.getMinutes();
+                  const arrivalTime = `${arrivalHours}:${arrivalMinutes}`;
+
+                  const departureDate = new Date(departure);
+                  const departureHours = departureDate.getHours();
+                  const departureMinutes = departureDate.getMinutes();
+                  const departureTime = `${departureHours}:${departureMinutes}`;
+
+                  const santaWasHere = currentDate.getTime() - departureDate.getTime() > 0;
+                  const santaIsHere = currentDate.getTime() - arrivalDate.getTime() > 0 && !santaWasHere;
+
+                  let iconUrl = '/images/tree.png'
+                  let iconRetinaUrl = '/images/treex2.png'
+
+                  if (santaWasHere) {
+                    iconUrl = '/images/gift.png'
+                    iconRetinaUrl = '/images/giftx2.png'
+                  }
+
+                  if (santaIsHere) {
+                    iconUrl = '/images/santa.png'
+                    iconRetinaUrl = '/images/santax2.png'
+                  }
+
+                  let className = '';
+
+                 if (santaIsHere) {
+                  className = `${className} ${styles.iconSantaIsHere}`
+                  
+                 }
+
+                  if ( santaIsHere ){
+                    className = `${className} ${styles.iconSantaIsHere}`
+                  }
+
+                  return (
+                    <Marker
+                     key={id} 
+                     position={[location.lat, location.lng]}
+                     icon = {Leaflet.icon({
+                      iconUrl,
+                      iconRetinaUrl,
+                      iconSize: [41, 41],
+                      className
+                     })}
+                     >
                   <Popup>
-                    A pretty CSS3 popup. <br /> Easily customizable.
+                   {city}, {region}
+                   <br />
+                   Arrival: { arrivalDate.toDateString()} @ { arrivalTime }
+                   <br />
+                   Departure:  { departureDate.toDateString()} @ { departureTime }
                   </Popup>
                 </Marker>
+                  )
+                })}
+                
               </>
             )}
           </Map>
