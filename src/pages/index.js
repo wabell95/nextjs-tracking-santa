@@ -17,8 +17,8 @@ export default function Home() {
   const { data, error, isLoading } = useSWR('https://firebasestorage.googleapis.com/v0/b/santa-tracker-firebase.appspot.com/o/route%2Fsanta_en.json?alt=media&2018b', fetcher)
 
 
-  const currentDate = new Date (Date.now())
-  // const currentDate = new Date ('2022-12-25T02:34:30.115Z');
+  // const currentDate = new Date (Date.now())
+  const currentDate = new Date ('2022-12-25T02:34:30.115Z');
   const currentYear = currentDate.getFullYear()
 
   const destinations = data?.destinations.map(destination => {
@@ -40,7 +40,7 @@ export default function Home() {
   return (
     <Layout>
       <Head>
-        <title>Next.js Leaflet Starter</title>
+        <title>Next.js Tracking Santa Claus</title>
         <meta name="description" content="Create mapping apps with Next.js Leaflet Starter" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -48,7 +48,7 @@ export default function Home() {
       <Section>
         <Container>
           <h1 className={styles.title}>
-            Next.js Leaflet Starter
+            Next.js Tracking Santa Claus by Bell
           </h1>
 
           <Map className={styles.homeMap} width="800" height="400" center={[0,0]} zoom={1}>
@@ -123,11 +123,11 @@ export default function Home() {
           </Map>
 
           <p className={styles.description}>
-            <code className={styles.code}>yarn create next-app -e https://github.com/colbyfayock/next-leaflet-starter</code>
+            <code className={styles.code}>Agus Bell</code>
           </p>
 
           <p className={styles.view}>
-            <Button href="https://github.com/colbyfayock/next-leaflet-starter">Vew on GitHub</Button>
+            <Button href="https://github.com/wabell95/nextjs-tracking-santa">View on GitHub</Button>
           </p>
         </Container>
       </Section>
