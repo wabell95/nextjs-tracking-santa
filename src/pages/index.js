@@ -17,8 +17,8 @@ export default function Home() {
   const { data, error, isLoading } = useSWR('https://firebasestorage.googleapis.com/v0/b/santa-tracker-firebase.appspot.com/o/route%2Fsanta_en.json?alt=media&2018b', fetcher)
 
 
-  // const currentDate = new Date (Date.now())
-  const currentDate = new Date ('2022-12-25T02:34:30.115Z');
+  const currentDate = new Date (Date.now())
+  // const currentDate = new Date ('2022-12-25T02:34:30.115Z');
   const currentYear = currentDate.getFullYear()
 
   const destinations = data?.destinations.map(destination => {
